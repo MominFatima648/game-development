@@ -1,0 +1,74 @@
+import pygame
+import sys
+import random
+
+# Initialize Pygame
+pygame.init()
+
+# Window setup
+WIDTH, HEIGHT = 800, 600
+WINDOW = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Camera Shake Example")
+
+# Colors
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+BALL_COLOR = (200, 50, 50)
+
+# Ball
+ball_radius = 30
+ball_pos = (WIDTH // 2, HEIGHT // 2)
+
+# Camera shake variables
+shake_duration = 0
+shake_timer = 0
+shake_intensity = 0
+camera_offset = pygame.Vector2(0, 0)
+
+# Clock
+clock = pygame.time.Clock()
+
+def start_camera_shake(duration, intensity):
+    global shake_duration, shake_timer, shake_intensity
+    shake_duration = duration
+    shake_timer = duration
+    shake_intensity = intensity
+
+def update_camera_shake():
+    global shake_timer, camera_offset
+    if shake_timer > 0:
+        shake_timer -= 1
+        # Random offset each frame
+        camera_offset.x = random.randint(-shake_intensity, shake_intensity)
+        camera_offset.y = random.randint(-shake_intensity, shake_intensity)
+    else:
+        camera_offset = pygame.Vector2(0, 0)
+
+# Main loop
+running = True
+while running:
+    clock.tick(60)  # 60 FPS
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+        # Trigger shake with spacebar
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE:
+                start_camera_shake(duration=15, intensity=5)
+
+    update_camera_shake()
+
+    # Drawing
+    WINDOW.fill(BLACK)
+    
+    # Draw ball with camera offset
+    ball_screen_pos = (ball_pos[0] + camera_offset.x, ball_pos[1] + camera_offset.y)
+    pygame.draw.circle(WINDOW, BALL_COLOR, ball_screen_pos, ball_radius)
+
+    pygame.display.flip()
+
+# Cleanup
+pygame.quit()
+sys.exit()
