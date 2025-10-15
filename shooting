@@ -1,63 +1,53 @@
-import pygame as pg
-import sys
+import pygame
 
-# Initialize Pygame
-pg.init()
+pygame.init()
+screen = pygame.display.set_mode((800, 600))
+clock = pygame.time.Clock()
+player = pygame.Rect(375, 550, 50, 40)
+bullets = []
 
-# Constants
-WIDTH, HEIGHT = 800, 600
-screen = pg.display.set_mode((WIDTH, HEIGHT))
-pg.display.set_caption("Shooting Game Environment Only")
+# 🟩 Create green blocks (static at the top)
+green_blocks = [
+    pygame.Rect(100, 100, 50, 40),
+    pygame.Rect(250, 100, 50, 40),
+    pygame.Rect(400, 100, 50, 40),
+    pygame.Rect(550, 100, 50, 40)
+]
 
-# Colors
-WHITE = (255, 255, 255)
-RED = (255, 0, 0)
-GREEN = (0, 255, 0)
-BLACK = (0, 0, 0)
-
-# Static player setup (white rectangle)
-player_width, player_height = 50, 40
-player = pg.Rect(WIDTH // 2 - player_width // 2, HEIGHT - player_height - 10, player_width, player_height)
-
-# One static bullet (red) from top
-bullet_width, bullet_height = 5, 10
-bullet = pg.Rect(WIDTH // 2 - bullet_width // 2, 150, bullet_width, bullet_height)  # Mid-screen
-
-# Few enemy blocks (green)
-enemy_width, enemy_height = 50, 40
-enemies = []
-for i in range(5):
-    x = 100 + i * 120
-    y = 80
-    enemy = pg.Rect(x, y, enemy_width, enemy_height)
-    enemies.append(enemy)
-
-# Clock
-clock = pg.time.Clock()
-
-# Main loop
-running = True
-while running:
+run = True
+while run:
     clock.tick(60)
-    screen.fill(BLACK)
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            run = False
 
-    for event in pg.event.get():
-        if event.type == pg.QUIT:
-            running = False
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_LEFT] and player.x > 0:
+        player.x -= 5
+    if keys[pygame.K_RIGHT] and player.x < 750:
+        player.x += 5
+    if keys[pygame.K_SPACE] and len(bullets) < 5:
+        bullets.append(pygame.Rect(player.x + 23, player.y, 5, 10))
 
-    # Draw static player
-    pg.draw.rect(screen, WHITE, player)
+    for bullet in bullets[:]:
+        bullet.y -= 7
+        if bullet.y < 0:
+            bullets.remove(bullet)
 
-    # Draw one bullet (optional slow falling)
-    bullet.y += 1  # slow downward movement (remove if you want it fully static)
-    pg.draw.rect(screen, RED, bullet)
+    screen.fill((0, 0, 0))
 
-    # Draw enemies
-    for enemy in enemies:
-        pg.draw.rect(screen, GREEN, enemy)
+    # 🟩 Draw green blocks
+    for block in green_blocks:
+        pygame.draw.rect(screen, (0, 255, 0), block)
 
-    pg.display.flip()
+    # 🕹 Draw player
+    pygame.draw.rect(screen, (255, 255, 255), player)
 
-# Exit
-pg.quit()
-sys.exit()
+    # 🔴 Draw bullets
+    for bullet in bullets:
+        pygame.draw.rect(screen, (255, 0, 0), bullet)
+
+    pygame.display.update()
+
+pygame.quit()
+
